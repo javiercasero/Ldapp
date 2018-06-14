@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".UserActivity">
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left|center"
+            android:orientation="vertical"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/textView_account_title"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:text="@string/account_title"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_weight="1" />
+            <TextView
+                android:id="@+id/textView_account"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Small Text"
+                android:textAllCaps="false"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_weight="1" />
+        </LinearLayout>
+        <View
+            android:id="@+id/divider1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@android:color/darker_gray" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left|center"
+            android:orientation="vertical"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/textView_namelastname_title"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:text="@string/namelastname_title"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_weight="1" />
+            <TextView
+                android:id="@+id/textView_namelastname"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Small Text"
+                android:textAllCaps="false"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@android:color/darker_gray" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left|center"
+            android:orientation="vertical"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/textView_status_title"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:text="@string/status_title"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_weight="1" />
+            <TextView
+                android:id="@+id/textView_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Small Text"
+                android:textAllCaps="false"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_weight="1" />
+        </LinearLayout>
+        <View
+            android:id="@+id/divider3"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@android:color/darker_gray" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left|center"
+            android:orientation="vertical"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/textView_expires_title"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:text="@string/expires_title"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_weight="1" />
+            <TextView
+                android:id="@+id/textView_expires"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Small Text"
+                android:textAllCaps="false"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_weight="1" />
+        </LinearLayout>
+        <View
+            android:id="@+id/divider4"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@android:color/darker_gray" />
+
+    </LinearLayout>
+
+</ScrollView>
+    <LinearLayout
+    android:id="@+id/user_buttons"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="30dp">
+
+    <Button
+        android:id="@+id/reset_button"
+        style="?android:textAppearanceSmall"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"
+        android:text="@string/action_reset"
+        android:visibility="gone"
+        android:bottomRightRadius="2dp"
+        android:bottomLeftRadius="2dp"
+        android:topRightRadius="2dp"
+        android:topLeftRadius="2dp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/unlock_button"
+        style="?android:textAppearanceSmall"
+
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"
+        android:text="@string/action_unlock"
+        android:visibility="gone"
+        android:bottomRightRadius="2dp"
+        android:bottomLeftRadius="2dp"
+        android:topRightRadius="2dp"
+        android:topLeftRadius="2dp"
+        android:textStyle="bold" />
+
+    </LinearLayout>
+</RelativeLayout>

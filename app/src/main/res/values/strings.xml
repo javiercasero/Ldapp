@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LdApp</string>
+    <string name="action_settings">Settings</string>
+    <string name="pwd_dialog">Enter Password</string>
+    <string name="new_pwd_dialog">Enter new password</string>
+    <string name="prompt_domain">Domain</string>
+    <string name="prompt_user">User</string>
+    <string name="prompt_pwd">Password</string>
+    <string name="prompt_pwd2">Same password as above</string>
+    <string name="pwd_not_match">Passwords do not match</string>
+    <string name="pwd_changed">Password successfully changed</string>
+    <string name="pwd_constraint1">Password policy constraint violation</string>
+    <string name="pwd_constraint2">Password has not been modified</string>
+    <string name="action_test">Test</string>
+    <string name="action_save">Save</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_reset">Reset password</string>
+    <string name="action_unlock">Unlock account</string>
+    <string name="admin_filter">Admin filter</string>
+    <string name="user_screen">User account</string>
+    <string name="newdomain_screen">Add domain account</string>
+    <string name="empty_field">Empty field not allowed</string>
+    <string name="account_title">Account</string>
+    <string name="namelastname_title">Name</string>
+    <string name="status_title">Account status</string>
+    <string name="expires_title">Password expires</string>
+    <string name="dialog_wait">Please wait...</string>
+    <string name="data_533">Disabled account</string>
+    <string name="data_775">Locked account</string>
+    <string name="data_52e">Wrong credentials</string>
+    <string name="data_0">Insufficient rights</string>
+    <string name="data_other">Not contemplated error</string>
+    <string name="conn_error">Connect error</string>
+    <string name="status_not_found">Status not contemplated</string>
+    <string name="normal_account">Enabled account</string>
+    <string-array name="admin_filters">
+        <item>Locked accounts</item>
+        <item>Disabled accounts</item>
+    </string-array>
+    <string-array name="account_flags">
+        <item>Disabled</item>
+        <item>Password not required</item>
+        <item>Password doesn't expire</item>
+        <item>Expired password</item>
+    </string-array>
+</resources>

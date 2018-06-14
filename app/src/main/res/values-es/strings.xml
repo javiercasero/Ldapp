@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LdApp</string>
+    <string name="action_settings">Settings</string>
+    <string name="pwd_dialog">Introduzca contraseña</string>
+    <string name="new_pwd_dialog">Introduzca una nueva contraseña</string>
+    <string name="prompt_domain">Dominio</string>
+    <string name="prompt_user">Usuario</string>
+    <string name="prompt_pwd">Contraseña</string>
+    <string name="prompt_pwd2">Repita la contraseña</string>
+    <string name="pwd_not_match">Las contraseñas no coinciden</string>
+    <string name="pwd_changed">Contraseña cambiada con éxito</string>
+    <string name="pwd_constraint1">Violación de política de seguridad de contraseñas</string>
+    <string name="pwd_constraint2">La contraseña no ha sido modificada</string>
+    <string name="action_test">Test</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_sign_in">Iniciar sesión</string>
+    <string name="action_reset">Resetear contraseña</string>
+    <string name="action_unlock">Desbloquear cuenta</string>
+    <string name="admin_filter">Filtro</string>
+    <string name="user_screen">Cuenta de usuario</string>
+    <string name="newdomain_screen">Nueva cuenta de dominio</string>
+    <string name="empty_field">No se permiten campos vacíos</string>
+    <string name="account_title">Cuenta</string>
+    <string name="namelastname_title">Nombre</string>
+    <string name="status_title">Estado de la cuenta</string>
+    <string name="expires_title">La contraseña expira</string>
+    <string name="dialog_wait">Por favor espere...</string>
+    <string name="data_533">Cuenta deshabilitada</string>
+    <string name="data_775">Cuenta bloqueada</string>
+    <string name="data_52e">Credenciales incorrectas</string>
+    <string name="data_0">Permisos insuficientes</string>
+    <string name="data_other">Not contemplated error</string>
+    <string name="conn_error">Error de conexión</string>
+    <string name="status_not_found">Estado no contemplado</string>
+    <string name="normal_account">Cuenta habilitada</string>
+    <string-array name="admin_filters">
+        <item>Cuentas bloqueadas</item>
+        <item>Cuentas deshabilitadas</item>
+    </string-array>
+    <string-array name="account_flags">
+        <item>Deshabilitada</item>
+        <item>No requiere contraseña</item>
+        <item>La contraseña no expira</item>
+        <item>Contraseña expirada</item>
+    </string-array>
+</resources>
