@@ -4,11 +4,15 @@ public class ListElement {
     private int idIcon;
     private String textPrincipal;
     private String textSecondary;
+    private String userDN;
+    private boolean checked;
+    private int accountControl;
 
     public ListElement (int idIcon, String textPrincipal, String textSecondary){
         this.idIcon = idIcon;
         this.textPrincipal = textPrincipal;
         this.textSecondary = textSecondary;
+        checked = false;
     }
 
     public int getIdIcon() {
@@ -29,4 +33,25 @@ public class ListElement {
     }
 
     public Integer getTypeOfUser() { return idIcon; }
+
+    public void setChecked(boolean check){
+        checked = check;
+    }
+    public boolean getChecked(){
+        return checked;
+    }
+
+    public void setUserDN(String dn){
+        userDN = dn;
+    }
+    public String getUserDN(){
+        return userDN;
+    }
+
+    public void setAccountControl(int aC) {
+        accountControl = aC;
+    }
+    public int getAccountControl(){
+        return accountControl;
+    }
 }

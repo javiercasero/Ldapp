@@ -25,6 +25,7 @@ import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.RootDSE;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
@@ -77,7 +78,7 @@ public class MyLdap {
 
 
     private void showProgress() {
-
+        if(pDialog==null) {
 
             pDialog = new ProgressDialog(mContext);
             pDialog.setIndeterminate(false);
@@ -87,7 +88,7 @@ public class MyLdap {
             //pDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
             pDialog.show();
-
+        }
     }
 
 
@@ -174,6 +175,8 @@ public class MyLdap {
 
     protected class Bind extends AsyncTask<String, Void, ResultCode> {
         private LDAPException ldex;
+        private RootDSE rootDSE;
+        private boolean isActiveDirectory;
 
         @Override
         protected void onPreExecute() {
@@ -241,6 +244,12 @@ public class MyLdap {
 
                 BindResult bindResult = c.bind(bindRequest);
 
+                //Determinar si el directorio es de tipo Active Directory
+                rootDSE = c.getRootDSE();
+                isActiveDirectory = rootDSE.hasAttribute("forestFunctionality");
+                Log.i("MyLdap.Bind", String.valueOf(isActiveDirectory));
+
+                Log.i("MyLdap.Bind", bindResult.getResultCode().toString());
                 resultCode = bindResult.getResultCode();
 
             } catch (LDAPException le) {
@@ -248,29 +257,41 @@ public class MyLdap {
                 //Log.d("ldapexcp", le.getDiagnosticMessage());
                 resultCode = ResultCode.INVALID_CREDENTIALS;
                 Log.i("LDAPException: ",getError(le));
+                isActiveDirectory = true;
                 ldex = le;
                 //Toast.makeText(mContext, getError(le),Toast.LENGTH_SHORT).show();
 
             } finally {
                 //c.close();
             }
-            if (resultCode == ResultCode.SUCCESS){
-                try{
-                    typeOfUser = Integer.valueOf(params[3]);
-                } catch (ArrayIndexOutOfBoundsException aioobe) {
-                    Log.i("test", "outofbound");
-                    if (checkIfAdmin(user)) {
-                        Log.i("isAdmin: ", "TRUE");
-                        typeOfUser = 1;
-                    } else {typeOfUser = 0;}
+            if (isActiveDirectory) {
+                if (resultCode == ResultCode.SUCCESS) {
+                    try {
+                        typeOfUser = Integer.valueOf(params[3]);
+                    } catch (ArrayIndexOutOfBoundsException aioobe) {
+                        Log.i("test", "outofbound");
+                        if (checkIfAdmin(user)) {
+                            Log.i("isAdmin: ", "TRUE");
+                            typeOfUser = 1;
+                        } else {
+                            typeOfUser = 0;
+                        }
+                    }
                 }
+            } else {
+                resultCode = ResultCode.NO_SUCH_ATTRIBUTE;
             }
+            /* Probar cómo sería con un dominio que no fuera Active Directory
+            resultCode = ResultCode.NO_SUCH_ATTRIBUTE;
+            isActiveDirectory = false;
+            */
 
             return resultCode;
         }
         @Override
         protected void onPostExecute(ResultCode resultCodePost) {
             Intent intent;
+
             //Log.d("msgPost", msgPost);
             //Toast.makeText(mContext, msgPost,Toast.LENGTH_SHORT).show();
 
@@ -293,6 +314,7 @@ public class MyLdap {
                             intent.putExtra("user", user);
                             intent.putExtra("password", password);
                             intent.putExtra("status", "unlocked");
+
                             mContext.startActivity(intent);
                             break;
 
@@ -303,18 +325,36 @@ public class MyLdap {
                 }
 
 
+            } else if (resultCodePost.equals(ResultCode.NO_SUCH_ATTRIBUTE) && !isActiveDirectory) {
+                Log.i("MyLdap.Bind", resultCodePost.toString());
+                Log.i("MyLdap.Bind", String.valueOf(isActiveDirectory));
+                Toast.makeText(mContext, R.string.ad_error,Toast.LENGTH_LONG).show();
             } else if (ldex.getResultCode().equals(ResultCode.CONNECT_ERROR)) {
                 Toast.makeText(mContext, R.string.conn_error,Toast.LENGTH_LONG).show();
+            } else if (ldex.getResultCode().equals(ResultCode.PARAM_ERROR)) {
+                Toast.makeText(mContext, R.string.param_error,Toast.LENGTH_LONG).show();
+                Log.i("MyLdap.Bind", ldex.getResultCode().toString());
             } else {
                 //msg = "Conexion Fallida: "+bindResult.getResultCode().toString();
                 Log.d("ldapNoOk", resultCodePost.toString());
                 Toast.makeText(mContext, getError(ldex),Toast.LENGTH_LONG).show();
-                if (ldex.getDiagnosticMessage().contains("data 775") && typeOfUser == 0){
-                    intent = new Intent(mContext, UserActivity.class);
-                    intent.putExtra("user", user);
-                    intent.putExtra("password", password);
-                    intent.putExtra("status", "locked");
-                    mContext.startActivity(intent);
+                //if (ldex.getDiagnosticMessage().contains("data 775") && typeOfUser == 0){
+                if (typeOfUser == 0 && ldex.getDiagnosticMessage() != null) {
+                    String status = null;
+                    if (ldex.getDiagnosticMessage().contains("data 775")) {
+                        status = "locked";
+                    //} else if (ldex.getDiagnosticMessage().contains("data 773")){
+                    //    status = "mustreset";
+                    }
+                    if (status != null) {
+                        intent = new Intent(mContext, UserActivity.class);
+                        intent.putExtra("user", user);
+                        intent.putExtra("password", password);
+                        intent.putExtra("status", status);
+                        //añadido para sacar la IP del dominio desde UserActivity
+                        intent.putExtra("domain", domain);
+                        mContext.startActivity(intent);
+                    }
                 }
                 //Toast.makeText(mContext, "Conexion Fallida",Toast.LENGTH_SHORT).show();
             }
@@ -361,18 +401,23 @@ public class MyLdap {
 
             Log.d("usuario: ", user);
             try {
-                SearchResult searchResult = c.search(getDN(domain), SearchScope.SUB, fAdmin,"sAMAccountName", "cn", "distinguishedName", "userPrincipalName");
+                SearchResult searchResult = c.search(getDN(domain), SearchScope.SUB, fAdmin,"sAMAccountName", "cn", "distinguishedName", "userPrincipalName", "userAccountControl");
                 Log.d("Num. resultados: ", String.valueOf(searchResult.getEntryCount()));
                 msg = String.valueOf(searchResult.getEntryCount());
                 if (searchResult.getEntryCount()>0) {
                     listElementArrayList = new ArrayList<ListElement>();
+                    ListElement listElement;
                     for (int i = 0; i < searchResult.getEntryCount(); i++) {
                         entry = searchResult.getSearchEntries().get(i);
                         secondary = entry.getAttributeValue("userPrincipalName");
                         if (secondary == null) {
                             secondary = entry.getAttributeValue("sAMAccountName");
                         }
-                        listElementArrayList.add(new ListElement(0,entry.getAttributeValue("cn"),secondary));
+                        listElement = new ListElement(0,entry.getAttributeValue("cn"),secondary);
+                        listElement.setUserDN(entry.getAttributeValue("distinguishedName"));
+                        listElement.setAccountControl(entry.getAttributeValueAsInteger("userAccountControl"));
+                        listElementArrayList.add(listElement);
+                        //listElementArrayList.add(new ListElement(0,entry.getAttributeValue("cn"),secondary));
                     }
                 } else {
                     Log.d("Search: ", "Sin resultados");
@@ -509,7 +554,50 @@ public class MyLdap {
 
         }
     }
+    protected class ModUser extends AsyncTask<String, Void, LDAPResult> {
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgress();
+        }
+
+        @Override
+        protected LDAPResult doInBackground(String... strings) {
+            String dN = strings[0];
+            LDAPResult modifyResult = null;
+            Modification mod = null;
+
+            if (strings[1].equals("0")){
+                mod = new Modification(ModificationType.REPLACE,"lockoutTime","0");
+
+            } else if (strings[1].equals("1")) {
+                int aC = Integer.parseInt(strings[2]);
+                int newAC = aC ^ 2;
+                mod = new Modification(ModificationType.REPLACE,"userAccountControl","0");
+
+            }
+
+            ModifyRequest modifyRequest = new ModifyRequest(dN,mod);
+
+            try {
+                modifyResult = c.modify(modifyRequest);
+                //msg = modifyResult.getResultString();
+            } catch (LDAPException le) {
+                le.printStackTrace();
+
+            }
+
+            return modifyResult;
+        }
+        @Override
+        protected void onPostExecute(LDAPResult modifyResultPost) {
+            if (pDialog.isShowing()) {pDialog.dismiss();}
+            //Toast.makeText(mContext, msg,Toast.LENGTH_LONG).show();
+
+
+        }
+    }
 
 
     private String getError(LDAPException le) {
@@ -524,6 +612,9 @@ public class MyLdap {
             switch (diagnosis[2].trim()){
                 case "data 0":
                     mensaje = mContext.getString(R.string.data_0);
+                    break;
+                case "data 773":
+                    mensaje = mContext.getString(R.string.data_773);
                     break;
                 case "data 775":
                     mensaje = mContext.getString(R.string.data_775)+"\n"+le.getDiagnosticMessage();
@@ -542,7 +633,7 @@ public class MyLdap {
 
         return mensaje;
     }
-    private String getDN(String host){
+    protected String getDN(String host){
         String dominioDN = "";
         String[] dominioDNArray = host.split("\\.");
 
@@ -555,7 +646,7 @@ public class MyLdap {
         return dominioDN;
     }
 
-    private boolean checkIfAdmin(String _user) {
+    private boolean checkIfAdmin(String user) {
         boolean isAdmin = false;
         try {
             Filter fAdmin = Filter.create("(&(&(objectClass=group)(sAMAccountName=Domain Admins)))");
@@ -565,7 +656,7 @@ public class MyLdap {
             SearchResultEntry adminResultEntry = adminSearchResult.getSearchEntries().get(0);
             String dn = adminResultEntry.getAttributeValue("distinguishedName");
 
-            Filter fUser = Filter.create("(&(sAMAccountName="+_user+")(memberof:1.2.840.113556.1.4.1941:="+dn+"))");
+            Filter fUser = Filter.create("(&(sAMAccountName="+user+")(memberof:1.2.840.113556.1.4.1941:="+dn+"))");
 
             SearchResult userSearchResult = c.search(getDN(domain), SearchScope.SUB, fUser,"distinguishedName");
             if (userSearchResult.getEntryCount()==1){

@@ -27,13 +27,21 @@
     <string name="expires_title">Password expires</string>
     <string name="dialog_wait">Please wait...</string>
     <string name="data_533">Disabled account</string>
+    <string name="data_773">Password must be reset</string>
     <string name="data_775">Locked account</string>
     <string name="data_52e">Wrong credentials</string>
     <string name="data_0">Insufficient rights</string>
     <string name="data_other">Not contemplated error</string>
     <string name="conn_error">Connect error</string>
+    <string name="ad_error">Not an Active Directory domain</string>
+    <string name="field_error">Incomplete field/s</string>
+    <string name="param_error">Parameter error, ¿empty password?</string>
     <string name="status_not_found">Status not contemplated</string>
     <string name="normal_account">Enabled account</string>
+    <string name="unlocked_ok">Account(s) succesfully unlocked</string>
+    <string name="unlocked_nook">Error unlocking some account</string>
+    <string name="enabled_ok">Account(s) succesfully enabled</string>
+    <string name="enabled_nook">Error enabling some account</string>
     <string-array name="admin_filters">
         <item>Locked accounts</item>
         <item>Disabled accounts</item>

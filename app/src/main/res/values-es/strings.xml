@@ -27,13 +27,21 @@
     <string name="expires_title">La contraseña expira</string>
     <string name="dialog_wait">Por favor espere...</string>
     <string name="data_533">Cuenta deshabilitada</string>
+    <string name="data_773">La contraseña debe ser cambiada</string>
     <string name="data_775">Cuenta bloqueada</string>
     <string name="data_52e">Credenciales incorrectas</string>
     <string name="data_0">Permisos insuficientes</string>
-    <string name="data_other">Not contemplated error</string>
+    <string name="data_other">Error no contemplado</string>
     <string name="conn_error">Error de conexión</string>
+    <string name="ad_error">No es un domino Active Directory</string>
+    <string name="field_error">Campo/s incompleto/s</string>
+    <string name="param_error">Error de parámetro, ¿contraseña vacía?</string>
     <string name="status_not_found">Estado no contemplado</string>
     <string name="normal_account">Cuenta habilitada</string>
+    <string name="unlocked_ok">Cuenta(s) desbloqueada(s) con éxito</string>
+    <string name="unlocked_nook">Error en el desbloqueo de alguna cuenta</string>
+    <string name="enabled_ok">Cuenta(s) habilitada(s) con éxito</string>
+    <string name="enabled_nook">Error al habilitar alguna cuenta</string>
     <string-array name="admin_filters">
         <item>Cuentas bloqueadas</item>
         <item>Cuentas deshabilitadas</item>

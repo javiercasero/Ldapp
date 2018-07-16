@@ -1,7 +1,14 @@
 package org.tfgdomain.ldapp;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -16,40 +23,80 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 
+import org.tfgdomain.jade.AndroidAgent;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import jade.android.AgentContainerHandler;
+import jade.android.AndroidGatewayAgent;
+import jade.android.AndroidHelper;
+import jade.android.MicroRuntimeService;
+import jade.android.MicroRuntimeServiceBinder;
+import jade.android.RuntimeCallback;
+import jade.core.MicroRuntime;
+import jade.core.Profile;
+import jade.util.leap.Properties;
+import jade.wrapper.AgentController;
+import jade.wrapper.ControllerException;
 
 public class UserActivity extends AppCompatActivity{
     private static final int sourceId = 5;
 
-    private String account, name, accountStatus, date, dN, oldPassword;
+    private String account, name, accountStatus, date, dN, oldPassword, domain, host, user;
     private long maxPwdAge, pwdLastSet;
     private int accountStatusFlag;
 
+    private TextView textAccount, textCN, dateOfExpiration, textAccountStatus;
+    private Button bReset;
+
+    //private String host = "192.168.0.33";
+
+    private String port = "1099";
+    //private String nickname;
+    private MicroRuntimeServiceBinder microRuntimeServiceBinder;
+    private ServiceConnection serviceConnection;
+    private MyReceiver myReceiver;
+    private Boolean containerStarted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
+        //
+        myReceiver = new MyReceiver();
+        IntentFilter lockedStatusFilter = new IntentFilter();
+        lockedStatusFilter.addAction("unlocked");
+        registerReceiver(myReceiver, lockedStatusFilter);
+        containerStarted = false;
+        //
 
-        TextView textAccount = findViewById(R.id.textView_account);
-        TextView textCN = findViewById(R.id.textView_namelastname);
-        TextView dateOfExpiraton = findViewById(R.id.textView_expires);
-        TextView textAccountStatus = findViewById(R.id.textView_status);
+        textAccount = findViewById(R.id.textView_account);
+        textCN = findViewById(R.id.textView_namelastname);
+        dateOfExpiration = findViewById(R.id.textView_expires);
+        textAccountStatus = findViewById(R.id.textView_status);
+        bReset = (Button)findViewById(R.id.reset_button);
         Button bUnlock = (Button)findViewById(R.id.unlock_button);
-        Button bReset = (Button)findViewById(R.id.reset_button);
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
-        String user = intent.getStringExtra("user");
+        user = intent.getStringExtra("user");
         oldPassword = intent.getStringExtra("password");
         accountStatus = intent.getStringExtra("status");
 
+        //domain = intent.getStringExtra("domain");
+
+
         if (accountStatus.equals("unlocked")) {
+
+            containerStarted = false;
+
             bReset.setVisibility(View.VISIBLE);
 
             Filter fUser = Filter.createEqualityFilter("sAMAccountName",user);
@@ -80,7 +127,7 @@ public class UserActivity extends AppCompatActivity{
                     textAccount.setText(account);
                     textCN.setText(name);
                     textAccountStatus.setText(accountStatus);
-                    dateOfExpiraton.setText(date);
+                    dateOfExpiration.setText(date);
                 }
             }
             bReset.setOnClickListener(new View.OnClickListener() {
@@ -88,12 +135,35 @@ public class UserActivity extends AppCompatActivity{
                     showNewPwdDialog();
                 }
             });
-        } else {
-            textAccount.setText(user);
+
+        } else if (accountStatus.equals("locked")){
             textAccountStatus.setText(getResources().getString(R.string.data_775));
+            textAccount.setText(user);
+            domain = intent.getStringExtra("domain");
+            Log.i("UserActivity", domain);
+
             textCN.setText("");
-            dateOfExpiraton.setText("");
+            dateOfExpiration.setText("");
             bUnlock.setVisibility(View.VISIBLE);
+
+            bUnlock.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view) {
+                    InetAddress address;
+
+                    try {
+                        //domain = "tfgdomain.org";
+                        //host = "192.168.0.33";
+                        host = new IpAddress().execute(domain).get();
+                        //bind("aa", host, port, agentStartupCallback);
+                        bind("aa", host, port, agentStartupCallback);
+                        Log.i("Exito: ", "creating agent");
+
+                    } catch (Exception ex) {
+                        Log.i("Error: ", "creating agent");
+                    }
+                }
+            });
+
         }
 
 
@@ -186,6 +256,7 @@ public class UserActivity extends AppCompatActivity{
                 if (ldapResult!=null){
                     if(ldapResult.getResultCode().equals(ResultCode.SUCCESS)) {
                         Toast.makeText(UserActivity.this, R.string.pwd_changed,Toast.LENGTH_LONG).show();
+                        oldPassword = newPassword;
                     } else {
                         Toast.makeText(UserActivity.this, R.string.data_other,Toast.LENGTH_LONG).show();
 
@@ -206,6 +277,8 @@ public class UserActivity extends AppCompatActivity{
         //Con la siguiente línea cargaría el siguiente lugar al borrar
         //startActivity(getIntent());
     }
+
+
 
     public void showNewPwdDialog(){
         DialogFragment dialogFragment = new NewPwdDialog();
@@ -233,4 +306,185 @@ public class UserActivity extends AppCompatActivity{
         return searchResult;
     }
 
+    private RuntimeCallback<AgentController> agentStartupCallback = new RuntimeCallback<AgentController>() {
+        @Override
+        public void onSuccess(AgentController agent) {
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+            //logger.log(Level.INFO, "Nickname already in use!");
+            //myHandler.postError(getString(R.string.msg_nickname_in_use));
+        }
+    };
+
+    public void bind(final String nickname, final String host,
+                     final String port,
+                     final RuntimeCallback<AgentController> agentStartupCallback) {
+
+        final Properties profile = new Properties();
+        profile.setProperty(Profile.MAIN_HOST, host);
+        profile.setProperty(Profile.MAIN_PORT, port);
+        profile.setProperty(Profile.MAIN, Boolean.FALSE.toString());
+        profile.setProperty(Profile.JVM, Profile.ANDROID);
+        profile.setProperty("domain", domain);
+        profile.setProperty("user", user);
+
+        if (AndroidHelper.isEmulator()) {
+            // Emulator: this is needed to work with emulated devices
+            profile.setProperty(Profile.LOCAL_HOST, AndroidHelper.LOOPBACK);
+        } else {
+            profile.setProperty(Profile.LOCAL_HOST,
+                    AndroidHelper.getLocalIPAddress());
+        }
+        // Emulator: this is not really needed on a real device
+        profile.setProperty(Profile.LOCAL_PORT, "2000");
+
+        if (microRuntimeServiceBinder == null) {
+            Log.i("bind: ", "null");
+            serviceConnection = new ServiceConnection() {
+                public void onServiceConnected(ComponentName className,
+                                               IBinder service) {
+                    microRuntimeServiceBinder = (MicroRuntimeServiceBinder) service;
+                    //logger.log(Level.INFO, "Gateway successfully bound to MicroRuntimeService");
+                    Log.i("bind: ", "onserviceconnected");
+                    startContainer(nickname, profile, agentStartupCallback);
+                }
+
+                public void onServiceDisconnected(ComponentName className) {
+                    microRuntimeServiceBinder = null;
+                    //logger.log(Level.INFO, "Gateway unbound from MicroRuntimeService");
+                }
+            };
+            //logger.log(Level.INFO, "Binding Gateway to MicroRuntimeService...");
+            bindService(new Intent(getApplicationContext(),
+                            MicroRuntimeService.class), serviceConnection,
+                    Context.BIND_AUTO_CREATE);
+        } else {
+            //logger.log(Level.INFO, "MicroRumtimeGateway already binded to service");
+            startContainer(nickname, profile, agentStartupCallback);
+        }
+    }
+
+    private void startContainer(final String nickname, Properties profile,
+                                final RuntimeCallback<AgentController> agentStartupCallback) {
+        if (!MicroRuntime.isRunning()) {
+            Log.i("container: ", "not running");
+            microRuntimeServiceBinder.startAgentContainer(profile,
+                    new RuntimeCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void thisIsNull) {
+                            //logger.log(Level.INFO, "Successfully start of the container...");
+                            containerStarted = true;
+                            startAgent(nickname, agentStartupCallback);
+                        }
+
+                        @Override
+                        public void onFailure(Throwable throwable) {
+                            //logger.log(Level.SEVERE, "Failed to start the container...");
+                        }
+                    });
+        } else {
+            startAgent(nickname, agentStartupCallback);
+        }
+    }
+
+    private void startAgent(final String nickname,
+                            final RuntimeCallback<AgentController> agentStartupCallback) {
+        microRuntimeServiceBinder.startAgent(nickname,
+                AndroidAgent.class.getName(),
+                new Object[] { getApplicationContext() },
+                new RuntimeCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void thisIsNull) {
+                        //logger.log(Level.INFO, "Successfully start of the "
+                        //        + AndroidAgent.class.getName() + "...");
+                        try {
+                            agentStartupCallback.onSuccess(MicroRuntime
+                                    .getAgent(nickname));
+                        } catch (ControllerException e) {
+                            // Should never happen
+                            agentStartupCallback.onFailure(e);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        //logger.log(Level.SEVERE, "Failed to start the "
+                        //        + SenderAgent.class.getName() + "...");
+                        agentStartupCallback.onFailure(throwable);
+                    }
+                });
+    }
+
+    public void unBind(final RuntimeCallback<AgentController>
+                                   agentStartupCallback)
+    {
+
+
+        microRuntimeServiceBinder.stopAgentContainer(new RuntimeCallback<Void>()
+        {
+            @Override
+            public void onSuccess(Void thisIsNull)
+            {
+                agentStartupCallback.onSuccess(null);
+            }
+
+            @Override
+            public void onFailure(Throwable throwable)
+            {
+
+                agentStartupCallback.onFailure(throwable);
+            }
+        });
+
+        unbindService(serviceConnection);
+
+    }
+
+    protected class IpAddress extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String hostname = strings[0];
+            String hostaddress = null;
+            InetAddress address;
+            try {
+                address = InetAddress.getByName(hostname);
+                hostaddress = address.getHostAddress();
+            } catch (UnknownHostException e1) {
+
+                e1.printStackTrace();
+            }
+            return hostaddress;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (containerStarted) { unBind(agentStartupCallback);}
+        unregisterReceiver(myReceiver);
+
+    }
+
+    private class MyReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.i("UserActivity", action);
+            /*
+            if (action.equalsIgnoreCase("jade.demo.chat.KILL")) {
+                finish();
+            }
+            */
+            if (action.equalsIgnoreCase("unlocked")) {
+                Log.i("UserActivity", "UNLOCKED");
+                Toast.makeText(UserActivity.this, user+": "+getResources().getString(R.string.unlocked_ok),Toast.LENGTH_LONG).show();
+                finish();
+            }
+        }
+    }
 }

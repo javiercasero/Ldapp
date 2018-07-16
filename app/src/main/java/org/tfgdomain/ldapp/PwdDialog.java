@@ -53,7 +53,10 @@ public class PwdDialog extends DialogFragment{
                         //Intentar conectar con credenciales de lista y password introducido
                         //y pasar a activity_admin
                         pwdEditText = (EditText)getDialog().findViewById(R.id.pwdText);
+
                         password = pwdEditText.getText().toString();
+
+
                         user = getArguments().getString("user");
                         domain = getArguments().getString("domain");
                         typeOfUser = getArguments().getInt("typeofuser");

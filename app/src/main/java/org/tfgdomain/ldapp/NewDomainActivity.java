@@ -28,7 +28,6 @@ public class NewDomainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_newdomain);
 
-
         editTextDomain = (EditText)findViewById(R.id.text_newdomain);
         editTextUser = (EditText)findViewById(R.id.text_newuser);
         editTextPassword = (EditText)findViewById(R.id.text_newpassword);
@@ -42,24 +41,33 @@ public class NewDomainActivity extends AppCompatActivity{
                 domain = editTextDomain.getText().toString();
                 user = editTextUser.getText().toString();
                 password = editTextPassword.getText().toString();
-                //MyLdap.Bind ldapBind = myLdap.new Bind();
-                try {
-                    resultCode = myLdap.new Bind().execute(user,domain,password).get();
-                    if (resultCode.equals(ResultCode.SUCCESS)) {
-                        Log.i("Test: ", "Se puede salvar");
-                        Log.i("Tipo de usuario: ", String.valueOf(myLdap.getTypeOfUser()));
 
-                        Toast.makeText(NewDomainActivity.this, "Conexion OK",Toast.LENGTH_SHORT).show();
-                        //LdappDB myDB = new LdappDB(NewDomainActivity.this);
-                        //myDB.wDB(domain, user, 0);
-                    } else {
-                        //Toast.makeText(NewDomainActivity.this, "Conexion Fallida",Toast.LENGTH_SHORT).show();
+                if (checkValues(user, domain, password)) {
+                    Log.i("NewDomainActivity", "campos correctos");
+                    try {
+                        resultCode = myLdap.new Bind().execute(user,domain,password).get();
+                        if (resultCode.equals(ResultCode.SUCCESS)) {
+                            Log.i("Test: ", "Se puede salvar");
+                            Log.i("Tipo de usuario: ", String.valueOf(myLdap.getTypeOfUser()));
+
+                            Toast.makeText(NewDomainActivity.this, "Conexion OK",Toast.LENGTH_SHORT).show();
+                            //LdappDB myDB = new LdappDB(NewDomainActivity.this);
+                            //myDB.wDB(domain, user, 0);
+                        } else {
+                            //Toast.makeText(NewDomainActivity.this, "Conexion Fallida",Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                } else {
+                    Toast.makeText(NewDomainActivity.this, R.string.field_error,Toast.LENGTH_LONG).show();
+                    Log.i("NewDomainActivity", "campos incorrectos");
                 }
+
+                //MyLdap.Bind ldapBind = myLdap.new Bind();
+
             }
         });
 
@@ -70,28 +78,45 @@ public class NewDomainActivity extends AppCompatActivity{
                 user = editTextUser.getText().toString();
                 password = editTextPassword.getText().toString();
                 //MyLdap.Bind ldapBind = myLdap.new Bind();
-                try {
-                    resultCode = myLdap.new Bind().execute(user,domain,password).get();
-                    if (resultCode.equals(ResultCode.SUCCESS)) {
-                        Log.i("Test: ", "Se puede salvar");
+                if (checkValues(user, domain, password)) {
+                    try {
+                        resultCode = myLdap.new Bind().execute(user,domain,password).get();
+                        if (resultCode.equals(ResultCode.SUCCESS)) {
+                            Log.i("Test: ", "Se puede salvar");
 
-                        Toast.makeText(NewDomainActivity.this, "Conexion OK",Toast.LENGTH_SHORT).show();
-                        LdappDB myDB = new LdappDB(NewDomainActivity.this);
-                        //myDB.wDB(domain, user, 0);
-                        myDB.wDB(domain, user, myLdap.getTypeOfUser());
-                        setResult(RESULT_OK, null);
-                        finish();
+                            Toast.makeText(NewDomainActivity.this, "Conexion OK",Toast.LENGTH_SHORT).show();
+                            LdappDB myDB = new LdappDB(NewDomainActivity.this);
+                            //myDB.wDB(domain, user, 0);
+                            myDB.wDB(domain, user, myLdap.getTypeOfUser());
+                            setResult(RESULT_OK, null);
+                            finish();
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                } else {
+                    Toast.makeText(NewDomainActivity.this, R.string.field_error,Toast.LENGTH_LONG).show();
+                    Log.i("NewDomainActivity", "campos incorrectos");
                 }
+
 
 
             }
         });
 
 
+    }
+    protected boolean checkValues (String user, String domain, String password) {
+
+        if (user.equals(null) || domain.equals(null) || user.equals("") || domain.equals("")){
+            return false;
+        } else {
+            if (password.equals(null)) {
+                this.password = "";
+            }
+            return true;
+        }
     }
 }
