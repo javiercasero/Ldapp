@@ -1,7 +1,13 @@
 package org.tfgdomain.ldapp;
 
+/**
+ * TFG "App para gestión móvil de cuentas LDAP – Active Directory" en la Universidad Internacional de la Rioja
+ * Descripción de la clase AdminContent.java
+ * @author Javier Casero Sáenz de Jubera
+ * @version 2.0, 2018/07/21
+ */
+
 import android.content.Context;
-import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,15 +15,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public abstract class AdminContent extends BaseAdapter{
-    private ArrayList<?> elementsList;
-    private int R_layout_IdView;
-    private Context context;
+abstract class AdminContent extends BaseAdapter{
+    private final ArrayList<?> elementsList;
+    private final int R_layout_IdView;
+    private final Context context;
 
     public AdminContent(Context context, int R_layout_IdView, ArrayList<?> elementsList) {
         super();
@@ -32,6 +36,7 @@ public abstract class AdminContent extends BaseAdapter{
 
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            assert layoutInflater != null;
             view = layoutInflater.inflate(R_layout_IdView, null);
         }
 
@@ -45,7 +50,7 @@ public abstract class AdminContent extends BaseAdapter{
             }
         });*/
         ListElement listElement = getListElement(index);
-        CheckBox checkBox = (CheckBox)view.findViewById(R.id.checkbox_filter);
+        CheckBox checkBox = view.findViewById(R.id.checkbox_filter);
         checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
         checkBox.setTag(index);
         checkBox.setChecked(listElement.getChecked());
@@ -57,7 +62,7 @@ public abstract class AdminContent extends BaseAdapter{
         return (ListElement)getItem(index);
     }
 
-    CompoundButton.OnCheckedChangeListener onCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
+    private final CompoundButton.OnCheckedChangeListener onCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -85,5 +90,5 @@ public abstract class AdminContent extends BaseAdapter{
         return index;
     }
 
-    public abstract void onElementsList (Object element, View view);
+    protected abstract void onElementsList(Object element, View view);
 }

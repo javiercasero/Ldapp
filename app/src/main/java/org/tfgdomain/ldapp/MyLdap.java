@@ -1,26 +1,25 @@
 package org.tfgdomain.ldapp;
 
+/**
+ * TFG "App para gestión móvil de cuentas LDAP – Active Directory" en la Universidad Internacional de la Rioja
+ * Descripción de la clase MyLdap.java
+ * @author Javier Casero Sáenz de Jubera
+ * @version 2.0, 2018/07/21
+ */
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
-import android.support.v4.widget.CircularProgressDrawable;
 import android.util.Log;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.unboundid.ldap.sdk.BindRequest;
 import com.unboundid.ldap.sdk.BindResult;
-import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
-import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
@@ -30,48 +29,28 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
-import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
 
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
 public class MyLdap {
-    private Context mContext;
+    private final Context mContext;
     private ProgressDialog pDialog;
     private static String user, domain, password;
-    protected static LDAPConnection c;
+    static LDAPConnection c;
     private String msg = null;
-    private Filter fAdmin;
-    private int source;
+    private final int source;
     private static int typeOfUser;
-    private ResultCode resultCode;
-
 
 
     public MyLdap(final Context context, int source){
         this.mContext = context;
         this.source = source;
-
-
-        /*
-        SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
-        SSLSocketFactory socketFactory = null;
-
-        try {
-            socketFactory = sslUtil.createSSLSocketFactory("TLSv1.2");
-        } catch (GeneralSecurityException e1) {
-            e1.printStackTrace();
-        }
-
-        c = new LDAPConnection(socketFactory);
-        */
 
     }
 
@@ -85,95 +64,12 @@ public class MyLdap {
             pDialog.setCancelable(false);
             pDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
             pDialog.setMessage(mContext.getString(R.string.dialog_wait));
-            //pDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
             pDialog.show();
         }
     }
 
 
-/*
-    protected class Bind extends AsyncTask<String, Void, String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showProgress();
-        }
-
-        @Override
-        protected String doInBackground(String... params){
-            SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
-            SSLSocketFactory socketFactory = null;
-
-            try {
-                socketFactory = sslUtil.createSSLSocketFactory("TLSv1.2");
-            } catch (GeneralSecurityException e1) {
-                e1.printStackTrace();
-            }
-
-            c = new LDAPConnection(socketFactory);
-            try {
-                if (c.isConnected()) {
-                    c.close();
-                    Log.d("LDAPConnection", "CERRADA");
-                }
-                user = params[0];
-                domain = params[1];
-                Log.d("domain", domain);
-                password = params[2];
-                c.connect(domain, 636);
-
-                String userDN = user+"@"+domain;
-
-                BindRequest bindRequest = new SimpleBindRequest(userDN,password);
-
-                BindResult bindResult = c.bind(bindRequest);
-
-
-                if (bindResult.getResultCode().equals(ResultCode.SUCCESS)){
-                    Log.d("ldapOK", "ok");
-                    msg = "Conexion OK.";
-
-                } else {
-                    msg = "Conexion Fallida: "+bindResult.getResultCode().toString();
-                    Log.d("ldapNoOk", "Wrong");
-                }
-            } catch (LDAPException le) {
-                //Log.d("ldapexcp", le.getExceptionMessage());
-                //Log.d("ldapexcp", le.getDiagnosticMessage());
-
-                msg = getError(le);
-            } finally {
-                //c.close();
-            }
-            return msg;
-        }
-        @Override
-        protected void onPostExecute(String msgPost) {
-            //Log.d("msgPost", msgPost);
-            Toast.makeText(mContext, msgPost,Toast.LENGTH_SHORT).show();
-            pDialog.dismiss();
-
-            if (msgPost.equals("Conexion OK.") ){
-                //Lanzar AdminActivity
-                if (source == 3){
-                    Intent intent = new Intent(mContext, AdminActivity.class);
-                    intent.putExtra("user", user);
-                    intent.putExtra("domain", domain);
-                    intent.putExtra("password", password);
-                    mContext.startActivity(intent);
-                } else if (source == 2) {
-
-                    Log.d("test: ", "OK");
-                }
-
-            }
-
-        }
-
-    }*/
-
-    protected class Bind extends AsyncTask<String, Void, ResultCode> {
+    class Bind extends AsyncTask<String, Void, ResultCode> {
         private LDAPException ldex;
         private RootDSE rootDSE;
         private boolean isActiveDirectory;
@@ -221,7 +117,7 @@ public class MyLdap {
             c = new LDAPConnection(socketFactory);
 
 
-
+            ResultCode resultCode;
             try {
                 if (c.isConnected()) {
                     c.close();
@@ -335,16 +231,12 @@ public class MyLdap {
                 Toast.makeText(mContext, R.string.param_error,Toast.LENGTH_LONG).show();
                 Log.i("MyLdap.Bind", ldex.getResultCode().toString());
             } else {
-                //msg = "Conexion Fallida: "+bindResult.getResultCode().toString();
                 Log.d("ldapNoOk", resultCodePost.toString());
                 Toast.makeText(mContext, getError(ldex),Toast.LENGTH_LONG).show();
-                //if (ldex.getDiagnosticMessage().contains("data 775") && typeOfUser == 0){
                 if (typeOfUser == 0 && ldex.getDiagnosticMessage() != null) {
                     String status = null;
                     if (ldex.getDiagnosticMessage().contains("data 775")) {
                         status = "locked";
-                    //} else if (ldex.getDiagnosticMessage().contains("data 773")){
-                    //    status = "mustreset";
                     }
                     if (status != null) {
                         intent = new Intent(mContext, UserActivity.class);
@@ -356,37 +248,14 @@ public class MyLdap {
                         mContext.startActivity(intent);
                     }
                 }
-                //Toast.makeText(mContext, "Conexion Fallida",Toast.LENGTH_SHORT).show();
             }
-
-            /*
-            if (resultCodePost.equals(ResultCode.SUCCESS)){
-                Log.i("ldap: ", "Conexion OK.");
-                if (source == 3){
-                    Intent intent = new Intent(mContext, AdminActivity.class);
-                    intent.putExtra("user", user);
-                    intent.putExtra("domain", domain);
-                    intent.putExtra("password", password);
-                    mContext.startActivity(intent);
-                } else if (source == 2) {
-                    //Toast.makeText(mContext, "Conexion OK",Toast.LENGTH_SHORT).show();
-                    Log.d("test: ", "OK");
-                }
-
-
-            } else {
-                //msg = "Conexion Fallida: "+bindResult.getResultCode().toString();
-                Log.d("ldapNoOk", resultCodePost.toString());
-                Toast.makeText(mContext, "Conexion Fallida",Toast.LENGTH_SHORT).show();
-            }
-            */
         }
 
 
 
     }
 
-    protected class Search extends AsyncTask<Filter, Void, ArrayList<ListElement>> {
+    class Search extends AsyncTask<Filter, Void, ArrayList<ListElement>> {
         private ArrayList<ListElement> listElementArrayList;
         private String msg, secondary;
         private SearchResultEntry entry;
@@ -397,7 +266,7 @@ public class MyLdap {
         }
         @Override
         protected ArrayList<ListElement> doInBackground(Filter... params){
-            fAdmin = params[0];
+            Filter fAdmin = params[0];
 
             Log.d("usuario: ", user);
             try {
@@ -405,7 +274,7 @@ public class MyLdap {
                 Log.d("Num. resultados: ", String.valueOf(searchResult.getEntryCount()));
                 msg = String.valueOf(searchResult.getEntryCount());
                 if (searchResult.getEntryCount()>0) {
-                    listElementArrayList = new ArrayList<ListElement>();
+                    listElementArrayList = new ArrayList<>();
                     ListElement listElement;
                     for (int i = 0; i < searchResult.getEntryCount(); i++) {
                         entry = searchResult.getSearchEntries().get(i);
@@ -442,12 +311,10 @@ public class MyLdap {
         }
     }
 
-    protected class UniqueEntry extends AsyncTask<Filter, Void, SearchResult> {
-        //private SearchResult searchResult;
-        private String msg, secondary;
+    class UniqueEntry extends AsyncTask<Filter, Void, SearchResult> {
+        private String msg;
         private Filter filter;
 
-        //private SearchResultEntry entry;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -499,7 +366,7 @@ public class MyLdap {
         }
     }
 
-    protected class PasswordReset extends AsyncTask<String, Void, LDAPResult> {
+    class PasswordReset extends AsyncTask<String, Void, LDAPResult> {
 
         @Override
         protected void onPreExecute() {
@@ -523,12 +390,13 @@ public class MyLdap {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            final ArrayList<Modification> modifications = new ArrayList<Modification>();
+            final ArrayList<Modification> modifications = new ArrayList<>();
+            assert oldUnicodePwd != null;
             Modification pwdModOld = new Modification(ModificationType.DELETE,"unicodePwd", oldUnicodePwd);
+            assert newUnicodePwd != null;
             Modification pwdModNew = new Modification(ModificationType.ADD,"unicodePwd", newUnicodePwd);
             modifications.add(pwdModOld);
             modifications.add(pwdModNew);
-            //Modification pwdMod = new Modification(ModificationType.REPLACE,"unicodePwd", newUnicodePwd);
 
             ModifyRequest modifyRequest = new ModifyRequest(dN, modifications);
 
@@ -541,7 +409,6 @@ public class MyLdap {
                     msg = mContext.getString(R.string.pwd_constraint1)+"\n"+mContext.getString(R.string.pwd_constraint2);
                 } else {
                     msg = mContext.getString(R.string.data_other);
-                    //msg = le.getResultString();
                 }
             }
             return modifyResult;
@@ -554,7 +421,7 @@ public class MyLdap {
 
         }
     }
-    protected class ModUser extends AsyncTask<String, Void, LDAPResult> {
+    class ModUser extends AsyncTask<String, Void, LDAPResult> {
 
         @Override
         protected void onPreExecute() {
@@ -574,15 +441,15 @@ public class MyLdap {
             } else if (strings[1].equals("1")) {
                 int aC = Integer.parseInt(strings[2]);
                 int newAC = aC ^ 2;
-                mod = new Modification(ModificationType.REPLACE,"userAccountControl","0");
+                mod = new Modification(ModificationType.REPLACE,"userAccountControl",String.valueOf(newAC));
 
             }
 
+            assert mod != null;
             ModifyRequest modifyRequest = new ModifyRequest(dN,mod);
 
             try {
                 modifyResult = c.modify(modifyRequest);
-                //msg = modifyResult.getResultString();
             } catch (LDAPException le) {
                 le.printStackTrace();
 
@@ -593,15 +460,13 @@ public class MyLdap {
         @Override
         protected void onPostExecute(LDAPResult modifyResultPost) {
             if (pDialog.isShowing()) {pDialog.dismiss();}
-            //Toast.makeText(mContext, msg,Toast.LENGTH_LONG).show();
-
 
         }
     }
 
 
     private String getError(LDAPException le) {
-        String mensaje = null;
+        String mensaje;
         if (le.getDiagnosticMessage() == null) {
 
             mensaje = le.getResultCode().getName();
@@ -670,11 +535,8 @@ public class MyLdap {
         return isAdmin;
     }
 
-    protected int getTypeOfUser(){
+    int getTypeOfUser(){
         return typeOfUser;
     }
 
-    public LDAPConnection getLdapConn(){
-        return c;
-    }
 }

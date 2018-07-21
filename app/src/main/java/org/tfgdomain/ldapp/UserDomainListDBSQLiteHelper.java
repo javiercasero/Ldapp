@@ -1,10 +1,17 @@
 package org.tfgdomain.ldapp;
 
+/**
+ * TFG "App para gestión móvil de cuentas LDAP – Active Directory" en la Universidad Internacional de la Rioja
+ * Descripción de la clase UserDomainListDBSQLiteHelper.java
+ * @author Javier Casero Sáenz de Jubera
+ * @version 2.0, 2018/07/21
+ */
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class UserDomainListDBSQLiteHelper extends SQLiteOpenHelper {
+class UserDomainListDBSQLiteHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "userdomain";

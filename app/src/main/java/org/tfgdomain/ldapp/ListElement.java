@@ -1,9 +1,16 @@
 package org.tfgdomain.ldapp;
 
-public class ListElement {
-    private int idIcon;
-    private String textPrincipal;
-    private String textSecondary;
+/**
+ * TFG "App para gestión móvil de cuentas LDAP – Active Directory" en la Universidad Internacional de la Rioja
+ * Descripción de la clase ListElement.java
+ * @author Javier Casero Sáenz de Jubera
+ * @version 2.0, 2018/07/21
+ */
+
+class ListElement {
+    private final int idIcon;
+    private final String textPrincipal;
+    private final String textSecondary;
     private String userDN;
     private boolean checked;
     private int accountControl;

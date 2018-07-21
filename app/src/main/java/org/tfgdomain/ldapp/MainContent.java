@@ -1,22 +1,26 @@
 package org.tfgdomain.ldapp;
 
-import android.app.LoaderManager;
+/**
+ * TFG "App para gestión móvil de cuentas LDAP – Active Directory" en la Universidad Internacional de la Rioja
+ * Descripción de la clase MainContent.java
+ * @author Javier Casero Sáenz de Jubera
+ * @version 2.0, 2018/07/21
+ */
+
 import android.content.Context;
-import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
 import java.util.ArrayList;
 
-public abstract class MainContent extends BaseAdapter{
-    private ArrayList<?> userDomainList;
-    private int R_layout_IdView;
-    private Context context;
+abstract class MainContent extends BaseAdapter{
+    private final ArrayList<?> userDomainList;
+    private final int R_layout_IdView;
+    private final Context context;
 
     public MainContent(Context context, int R_layout_IdView, ArrayList<?> userDomainList) {
         super();
@@ -30,10 +34,11 @@ public abstract class MainContent extends BaseAdapter{
 
         if (view == null) {
             LayoutInflater layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            assert layoutInflater != null;
             view = layoutInflater.inflate(R_layout_IdView, null);
         }
         onUserDomainList (userDomainList.get(index), view);
-        ImageView img = (ImageView)view.findViewById(R.id.imageView_icon);
+        ImageView img = view.findViewById(R.id.imageView_icon);
         img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -59,6 +64,6 @@ public abstract class MainContent extends BaseAdapter{
         return index;
     }
 
-    public abstract void onUserDomainList (Object userDomain, View view);
+    protected abstract void onUserDomainList(Object userDomain, View view);
 
 }

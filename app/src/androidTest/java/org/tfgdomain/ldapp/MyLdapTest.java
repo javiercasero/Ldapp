@@ -19,7 +19,5 @@ public class MyLdapTest {
         String result = myLdap.getDN(domain);
         assertEquals("DC=tfgdomain,DC=org", result);
     }
-    @Test void testCheckIfAdmin() throws Exception {
 
-    }
 }

@@ -1,35 +1,31 @@
 package org.tfgdomain.jade;
 
+/**
+ * TFG "App para gestión móvil de cuentas LDAP – Active Directory" en la Universidad Internacional de la Rioja
+ * Descripción de la clase AndroidAgent.java
+ * @author Javier Casero Sáenz de Jubera
+ * @version 2.0, 2018/07/21
+ */
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.unboundid.ldap.sdk.ResultCode;
-
-import org.tfgdomain.ldapp.UserActivity;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import jade.content.Concept;
 import jade.content.ContentElement;
-import jade.content.ContentManager;
 import jade.content.lang.Codec;
 import jade.content.lang.sl.SLCodec;
 import jade.content.onto.Ontology;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
-import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
-import jade.domain.DFService;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.SearchConstraints;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
-import jade.domain.FIPAException;
-import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.wrapper.gateway.GatewayAgent;
@@ -37,11 +33,10 @@ import jade.wrapper.gateway.GatewayAgent;
 public class AndroidAgent extends GatewayAgent {
     private static final long serialVersionUID = 1594371294421614291L;
     private Context context;
-    private Codec codec = new SLCodec();
-    private Ontology ontology = LdapOntology.getInstance();
+    private final Codec codec = new SLCodec();
+    private final Ontology ontology = LdapOntology.getInstance();
     private ACLMessage jadeMsg;
     private String domain, user;
-    //private final ContentManager cm = getContentManager();
 
     protected void setup(){
         Object[] args = getArguments();
@@ -60,29 +55,6 @@ public class AndroidAgent extends GatewayAgent {
         user = getProperty("user", "0");
 
         Log.i("AndroidAgent", "setup");
-		/*
-        ACLMessage mensaje = new ACLMessage(ACLMessage.PROPOSE);
-        //AID remote = new AID("ams@10.15.149.10:1099/JADE", AID.ISGUID);
-        //remote.addAddresses("http://10.0.2.2:7778/acc");
-        AID remote = new AID("ams@10.15.149.83:1099/JADE", AID.ISGUID);
-        remote.addAddresses("http://INF-JCASERO-W10.riojasalud.es:7778/acc");
-        mensaje.setContent("Hola Mundo");
-        mensaje.addReceiver(remote);
-        send(mensaje);*/
-
-
-        // Build the description used as template for the search
-
-
-
-
-  		/*SearchConstraints sc = new SearchConstraints();
-  		// We want to receive 10 results at most
-  		sc.setMaxResults(new Long(1));
-  		//Para buscar en plataformas federadas
-  		//sc.setMaxDepth(new Long(1));
-  		*/
-
 
 
             addBehaviour(new OneShotBehaviour(this) {
@@ -102,7 +74,6 @@ public class AndroidAgent extends GatewayAgent {
 
                         UnlockRequest unlockRequest = new UnlockRequest();
                         Account account = new Account();
-                        //account.setUser("CN=Usuario 1,OU=Usuarios,OU=Test,DC=tfgdomain,DC=org");
                         account.setUser(user);
                         account.setDomain(domain);
                         unlockRequest.setAccount(account);
@@ -130,7 +101,6 @@ public class AndroidAgent extends GatewayAgent {
                             MessageTemplate.MatchLanguage(codec.getName()),
                             MessageTemplate.MatchOntology(ontology.getName()));
 
-                    //ACLMessage aclMsg = receive(mt);
                     ACLMessage aclMsg = blockingReceive(mt);
                     if(aclMsg != null) {
                         if(aclMsg.getPerformative() == ACLMessage.INFORM) {
@@ -145,7 +115,6 @@ public class AndroidAgent extends GatewayAgent {
                                         Log.i("AndroidAgent", "desbloqueo correcto");
                                         Intent broadcast = new Intent();
                                         broadcast.setAction("unlocked");
-                                        //broadcast.putExtra("prueba", "desbloqueo correcto");
                                         context.sendBroadcast(broadcast);
                                     }
 
@@ -164,27 +133,6 @@ public class AndroidAgent extends GatewayAgent {
                 }
             });
 
-
-/*
-
-
-
-
-    }
-    /*
-    @Override
-    protected void afterMove() {
-        super.afterMove();
-        registerLangAndOnto();
-    }
-
-    private void registerLangAndOnto() {
-
-        getContentManager().registerLanguage(codec);
-
-        getContentManager().registerOntology(ontology);
-
-    */
     }
     protected void takeDown() {
     }

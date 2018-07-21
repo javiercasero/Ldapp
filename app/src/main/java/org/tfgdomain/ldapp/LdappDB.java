@@ -1,5 +1,12 @@
 package org.tfgdomain.ldapp;
 
+/**
+ * TFG "App para gestión móvil de cuentas LDAP – Active Directory" en la Universidad Internacional de la Rioja
+ * Descripción de la clase LdappDB.java
+ * @author Javier Casero Sáenz de Jubera
+ * @version 2.0, 2018/07/21
+ */
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -7,13 +14,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class LdappDB {
-    private Context context;
-    private ArrayList<ListElement> arrayList;
-    protected LdappDB(Context context){
+class LdappDB {
+    private final Context context;
+
+    LdappDB(Context context){
         this.context = context;
     }
 
@@ -33,7 +39,7 @@ public class LdappDB {
     public ArrayList<ListElement> rDB(){
 
         SQLiteDatabase sqldb = new UserDomainListDBSQLiteHelper(context).getReadableDatabase();
-        arrayList = new ArrayList<ListElement>();
+        ArrayList<ListElement> arrayList = new ArrayList<>();
         Cursor cursor = sqldb .rawQuery("SELECT * FROM userdomain", null);
         //if (cursor.getCount()>0){
         if (cursor != null){
@@ -45,8 +51,9 @@ public class LdappDB {
             }
             //String dominio = cursor.getString(1);
             //Toast.makeText(context, cursor.getCount() + dominio, Toast.LENGTH_LONG).show();
+            cursor.close();
         }
-        cursor.close();
+
         return arrayList;
     }
 }
