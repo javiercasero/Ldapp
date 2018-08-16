@@ -53,12 +53,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-        //Crear base de datos
+        /**Crear objeto para manejar base de datos*/
         LdappDB myDB = new LdappDB(this);
 
         ListView listView = findViewById(R.id.listUserDomain);
-
+        /**Definir el contenido de la lista con los valores devueltos de la lectura de la bbdd*/
         listView.setAdapter(new MainContent(this, R.layout.user_domain, myDB.rDB()) {
             @Override
             public void onUserDomainList(Object userDomain, View view) {
